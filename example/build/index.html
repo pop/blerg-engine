@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<head>
+<link rel='stylesheet' type='text/css' href='/style.css'>
+</head>
+<body>
+
+  <div class='meta'>
+
+  <header>
+    <a href='/'>
+    <img src='/static/hello_world.png'></img>
+    </a>
+  </header>
+
+  <article>
+    <h1>blerg-engine</h1>
+    <p>This is the engine behind <a class="reference external" href="http://blog.elijahcaine.me">my blog</a>. It is a bunch of python code that gets
+the job done. It is not a python package (yet) but this repository does include
+some example files to get you up and running if you want to play with what I've
+got.</p>
+<div class="section" id="up-and-running">
+<h1>Up and Running</h1>
+<p>To start using the blerg-engine run the following commands (preferably in
+order)</p>
+<pre class="code literal-block">
+$ virtualenv -p /usr/bin/python3 venv
+$ source venv
+(venv)$ pip install -r requirements.txt
+(venv)$ cd example
+(venv)[example/]$ ./blerg.py # This just builds the website
+Rendered site in 0.1305 second
+(venv)[example/]$ ./blerg.py server # This starts an auto-updating server
+Serving on http://127.0.0.1:8080
+Rendered site in 0.1306 seconds
+</pre>
+<p>While the server is running if you go to <a class="reference external" href="http://127.0.0.1:8080">http://127.0.0.1:8080</a> you will see a
+live site that is updated automatically any time content content/ or
+templates/ or metadata.yml get updated.</p>
+</div>
+<div class="section" id="doing-your-own-thing">
+<h1>Doing Your Own Thing</h1>
+<p>To start developing your own site simply copy the contents of example into a
+new directory (within the blerg-engine repository) and edit the files to your
+liking. Things to note:</p>
+<ul class="simple">
+<li>metadata.yml is a required file at the top level of your project.</li>
+<li>You can only build and run the server from the top level of your project.</li>
+<li>You can copy blerg.py to any directory and it will work just fine as long as
+you are in virtualenv (i.e., using python 3 and have the right dependencies
+installed).</li>
+</ul>
+<p><strong>note:</strong> The engine is very new and very unstable. If things break <a class="reference external" href="https://github.com/ElijahCaine/blerg-engine/issues">file an
+issue on Github</a>. Thank you :)</p>
+</div>
+
+  </article>
+
+  <nav>
+    <h2>Posts</h2>
+    <ul>
+      
+      
+      
+      <li>
+        <a href="/posts/first/">first</a>
+      </li>
+      
+      
+      
+    </ul>
+  </nav>
+
+  </div>
+</body>
