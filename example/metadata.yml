@@ -2,23 +2,24 @@ title: 'My First Blerg'
 
 special_files:
     style:
-        location:    'templates/style.css' 
+        location: 'templates/style.css' 
         destination: 'build/style.css'
     static:
-        location:    'content/static/'
+        location: 'content/static/'
         destination: 'build/static/'
 
 special_pages:
     homepage:
-        title:      'Homepage'
-        filename:   'content/index.rst'
-        url:        '/'
-        template:   'templates/base.jinja'
+        title: 'Homepage'
+        filename: 'content/index.rst'
+        url: '/'
+        template: 'templates/base.jinja'
 
-article_template: 'templates/base.jinja'
-sourcedir:        'content/posts/'
-listing:
-    - first: 'first.rst'
+content:
+    pages:
+        - first: 'first.rst'
+    source_dir: 'content/posts/'
+    template: 'templates/base.jinja'
 
 archive_cutoff: 3
 

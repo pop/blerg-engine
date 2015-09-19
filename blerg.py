@@ -68,7 +68,7 @@ def collect():
     Collects a site's metadata.
     """
     pages = []
-    for val in conf['listing']:
+    for val in conf['content']['pages']:
         pages.append(collect_single(val))
     return pages
 
@@ -81,7 +81,7 @@ def collect_single(info=None):
     for k, v in list(info.items()):
         ret_val['title'] = k
         ret_val['url'] = '/posts/'+v.replace('.rst','')+'/'
-        ret_val['filename'] = conf['sourcedir']+v
+        ret_val['filename'] = conf['content']['source_dir']+v
     return ret_val
 
 
@@ -102,7 +102,7 @@ def render():
         render_single(filename=e['filename'],
                       title=e['title'],
                       url=e['url'],
-                      page_template=conf['article_template'],
+                      page_template=conf['content']['template'],
                       navigation=navbar)
     for page in conf['special_pages']:
         p = conf['special_pages'][page]
@@ -168,7 +168,7 @@ def server():
     """
     Runs a http server that reloads when content is updated.
     """
-    with Popen(['./blerg.py', 'watch']):
+    with Popen(['blerg.py', 'watch']):
         cwd = getcwd()
         chdir(cwd+'/build/')
         http = HTTPServer(('127.0.0.1', conf['server_port']), SimpleHTTPRequestHandler)
