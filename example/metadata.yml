@@ -1,4 +1,9 @@
 title: 'My First Blerg'
+author: 'Mr.Nobody'
+email: 'admin@example.com'
+base_url: 'http://example.com'
+rss_feed: 'rss.xml'
+description: 'A blog or something like that.'
 
 special_files:
     style:
@@ -22,5 +27,4 @@ content:
     template: 'templates/base.jinja'
 
 archive_cutoff: 3
-
 server_port: 8080

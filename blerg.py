@@ -21,8 +21,8 @@ from sys import argv
 from os import walk, stat, chdir
 from subprocess import Popen
 
-# quickstart
-# import requests
+# RSS Feed
+from feedgen.feed import FeedGenerator
 
 # Signal Handling
 from sys import exit
@@ -94,16 +94,18 @@ def render():
     nav = collect()
     navbar = []
 
+    # Render main pages content
     for i in nav:
         if i['filename'] != conf['special_pages']['homepage']['filename']:
             navbar.append(i)
-
     for e in nav:
-        render_single(filename=e['filename'],
-                      title=e['title'],
-                      url=e['url'],
-                      page_template=conf['content']['template'],
-                      navigation=navbar)
+        e['content'] = render_single(filename=e['filename'],
+                                     title=e['title'],
+                                     url=e['url'],
+                                     page_template=conf['content']['template'],
+                                     navigation=navbar)
+
+    # Render Special Pages
     for page in conf['special_pages']:
         p = conf['special_pages'][page]
         render_single(filename=p['filename'],
@@ -111,7 +113,6 @@ def render():
                       url=p['url'],
                       page_template=p['template'],
                       navigation=navbar)
-
     for sf in conf['special_files']:
         f = conf['special_files'][sf]
         try:
@@ -121,6 +122,12 @@ def render():
                 copytree(f['location'], f['destination'])
             except FileExistsError:
                 pass
+
+    # Render RSS feed
+    try:
+        generate_rss(nav)
+    except KeyError as err:
+        print('Key not found. Please add: ' + str(err) + ' to metadata.')
 
     print('Rendered site in {:0.4f} seconds'.format(process_time() - start_time))
 
@@ -148,13 +155,13 @@ def render_single(filename=None, title=None, url=None, page_template=None,\
         env = Environment(loader=loader)
         template = env.get_template(page_template)
         page = template.render(title=title,
-           article=body,
-           style='style.css',
-           jquery='jquery-1.11.3.min.js',
-           archive_url=archive_url,
-           archive_cutoff=archive_cutoff,
-           filename=filename,
-           navigation=navigation)
+                               article=body,
+                               style='style.css',
+                               jquery='jquery-1.11.3.min.js',
+                               archive_url=archive_url,
+                               archive_cutoff=archive_cutoff,
+                               filename=filename,
+                               navigation=navigation)
 
     try:
         makedirs('./build/'+url)
@@ -162,6 +169,8 @@ def render_single(filename=None, title=None, url=None, page_template=None,\
         pass
     with open('./build/'+url+'index.html', 'w') as f:
         f.write(page)
+
+    return file_content
 
 
 def server():
@@ -219,8 +228,28 @@ def print_help():
     print('Commands:')
     print('    blerg.py         : builds website')
     print('    blerg.py server  : starts an auto-updating server')
-#    print('    blerg.py init    : downloads some files to get up and running')
     print('    blerg.py help    : this help text')
+
+
+def generate_rss(pages_info=None):
+    fg = FeedGenerator()
+    fg.id(conf['base_url'])
+    fg.title(conf['title'])
+    fg.author( {'name':conf['author'],'email':conf['email']} )
+    fg.link( href=conf['base_url'], rel='alternate' )
+    fg.subtitle(conf['description'])
+    fg.link( href=conf['base_url']+'/rss.xml', rel='self' )
+    fg.language('en')
+    for post in pages_info:
+        fe = fg.add_entry()
+        fe.id('http://blog.elijahcaine.me/'+post['url'])
+        fe.title(post['title'])
+        fe.author( {'name':conf['author'],'email':conf['email']} )
+        fe.link( href=conf['base_url']+post['url'], rel='alternate' )
+        fe.description( post['content']['fragment'] )
+    rssfeed  = fg.rss_str(pretty=True)
+    fg.rss_file('build/'+conf['rss_feed'])
+    return rssfeed
 
 
 if __name__ == '__main__':
@@ -229,11 +258,11 @@ if __name__ == '__main__':
             server()
         elif argv[1] == 'watch':
             watch()
-#        elif argv[1] == 'init':
-#            try:
-#                quickstart_init(argv[2])
-#            except:
-#                quickstart_init()
+        elif argv[1] == 'init':
+            try:
+                quickstart_init(argv[2])
+            except:
+                quickstart_init()
         elif argv[1] == 'help':
             print_help()
     else:
