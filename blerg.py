@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 """
 This is the blob of python that powers my blog thing.
 """
