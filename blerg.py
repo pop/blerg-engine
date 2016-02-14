@@ -12,14 +12,16 @@ from docutils.core import publish_parts
 
 # Creating final build files
 from os import getcwd, path, makedirs
-from shutil import copy2, copytree
-from time import process_time
+from shutil import copy2, copytree, rmtree
+from time import clock
 
 # HTTP Server Handling
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from sys import argv
+from sys import argv, version_info
 from os import walk, stat, chdir
 from subprocess import Popen
+
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+from SocketServer import TCPServer as HTTPServer
 
 # RSS Feed
 from feedgen.feed import FeedGenerator
@@ -37,7 +39,7 @@ metadata_file = 'metadata.yml'
 try:
     with open(metadata_file, 'r') as f:
         conf = yaml.load(f)
-except FileNotFoundError:
+except IOError: # FileNotFoundError:
     print('metadata.yml not found')
 #    print('Try running `blerg.py init`')
     exit()
@@ -89,7 +91,7 @@ def render():
     """
     Renders the site.
     """
-    start_time = process_time()
+    start_time = clock()
 
     nav = collect()
     navbar = []
@@ -117,11 +119,12 @@ def render():
         f = conf['special_files'][sf]
         try:
             copy2(f['location'], f['destination'])
-        except IsADirectoryError:
+        except IOError: # IsADirectoryError:
             try:
                 copytree(f['location'], f['destination'])
-            except FileExistsError:
-                pass
+            except OSError: # FileExistsError:
+                rmtree(f['destination'])
+                copytree(f['location'], f['destination'])
 
     # Render RSS feed
     try:
@@ -129,7 +132,7 @@ def render():
     except KeyError as err:
         print('Key not found. Please add: ' + str(err) + ' to metadata.')
 
-    print('Rendered site in {:0.4f} seconds'.format(process_time() - start_time))
+    print('Rendered site in {:0.4f} seconds'.format(clock() - start_time))
 
 
 def render_single(filename=None, title=None, url=None, page_template=None,\
@@ -177,12 +180,14 @@ def server():
     """
     Runs a http server that reloads when content is updated.
     """
-    with Popen(['blerg.py', 'watch']):
-        cwd = getcwd()
-        chdir(cwd+'/build/')
-        http = HTTPServer(('127.0.0.1', conf['server_port']), SimpleHTTPRequestHandler)
-        print('Serving on http://127.0.0.1:'+str(conf['server_port']))
-        http.serve_forever()
+    Popen(['blerg.py', 'watch'])
+    cwd = getcwd()
+    chdir(cwd+'/build/')
+    handler = SimpleHTTPRequestHandler
+    httpd = HTTPServer(('127.0.0.1', conf['server_port']), handler)
+    print('Serving on http://127.0.0.1:' + str(conf['server_port']))
+    httpd.serve_forever()
+
 
 def watch():
     """
